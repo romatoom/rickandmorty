@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-const noImageURL = "/no-image.jpg";
+const noImageURL = "/rickandmorty/no-image.jpg";
 
 const props = defineProps({
   item: {
