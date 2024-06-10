@@ -6,4 +6,4 @@ yarn
 Запуск локально:
 yarn dev
 
-![Uploading Снимок экрана 2024-06-10 в 16.04.13.png…]()
+![screenshot](https://github.com/romatoom/rickandmorty/assets/20795373/ec599d3d-c7eb-46e1-8b41-db0246591594)
