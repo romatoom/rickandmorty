@@ -1,30 +1,78 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <c-pagination
+    :currentPage="currentPage"
+    :pagesCount="pagesCount"
+    @change-page="handleChangePage"
+    class="mb-20"
+  />
+
+  <c-filter :filter="filter" @set-filter="setFilter" />
+
+  <c-list :items="charactersItems">
+    <template v-slot="{ item }">
+      <c-card-character :item="item" />
+    </template>
+  </c-list>
+
+  <the-page-loader :loading="loading" />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<script setup>
+import { onMounted, ref, reactive, watch } from "vue";
+import useCharacters from "./composables/useCharacters.js";
+
+import CPagination from "./components/CPagination.vue";
+import CFilter from "./components/CFilter.vue";
+import CList from "./components/CList.vue";
+import CCardCharacter from "./components/CCardCharacter.vue";
+import ThePageLoader from "./components/ThePageLoader.vue";
+
+const { getCharacters, loading } = useCharacters();
+
+const charactersItems = ref([]);
+const pagesCount = ref(0);
+
+const filter = reactive({
+  name: "",
+  status: "",
+});
+
+async function fetchCharacters() {
+  try {
+    const charactersData = await getCharacters({
+      page: currentPage.value,
+      filter,
+    });
+
+    charactersItems.value = charactersData.results;
+    pagesCount.value = charactersData.info.pages;
+  } catch (err) {
+    charactersItems.value = [];
+    pagesCount.value = 1;
+  }
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+const currentPage = ref(1);
+
+function handleChangePage(page) {
+  currentPage.value = page;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+function setFilter(filterForAssign) {
+  currentPage.value = 1;
+  Object.assign(filter, filterForAssign);
 }
-</style>
+
+const dataUsingForFetch = reactive({
+  currentPage,
+  filter,
+});
+
+watch(dataUsingForFetch, () => {
+  fetchCharacters();
+});
+
+onMounted(() => {
+  fetchCharacters();
+});
+</script>
